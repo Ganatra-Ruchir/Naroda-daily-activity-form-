@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sashakt Karyalay — Naroda Daily Activity Log</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;600&family=Inter:wght@400;500;600&display=swap');
+  :root{
+    --ink:#22281F;
+    --paper:#FBF8F2;
+    --indigo:#2B3A67;
+    --indigo-dark:#1D2A4D;
+    --marigold:#C77F2B;
+    --marigold-dark:#9C6320;
+    --sage-line:#DCD5C3;
+    --card:#FFFFFF;
+    --muted:#6B6A5F;
+    --danger:#A8433A;
+    --danger-bg:#FBEEEC;
+    --success:#3B6D11;
+    --success-bg:#EEF4E4;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 0 60px;}
+  .header{
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:var(--indigo);
+    color:#F4F1E8;
+    padding:22px 24px 18px;
+    border-bottom:4px solid var(--marigold);
+  }
+  .header .eyebrow{
+    font-size:12.5px;
+    color:#B9C2DC;
+    margin:0 0 4px;
+    letter-spacing:0.02em;
+  }
+  .header h1{
+    font-family:'Roboto Slab',serif;
+    font-weight:600;
+    font-size:22px;
+    margin:0 0 4px;
+    line-height:1.25;
+  }
+  .header p{
+    margin:0;
+    font-size:13px;
+    color:#C7CEE2;
+  }
+  .header .draft-note{
+    font-size:11.5px;
+    color:#EBD9B8;
+    margin-top:6px;
+    display:none;
+  }
+  .header .draft-note.show{display:block;}
+  .progress-bar{
+    height:4px;
+    background:rgba(255,255,255,0.15);
+    margin-top:14px;
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--marigold);
+    width:8%;
+    transition:width 0.3s ease;
+  }
+  .banner{
+    margin:16px 16px 0;
+    padding:12px 14px;
+    border-radius:8px;
+    font-size:13px;
+    line-height:1.5;
+    display:none;
+  }
+  .banner.show{display:block;}
+  .banner.error{background:var(--danger-bg);color:var(--danger);border:1px solid #E8C7C2;}
+  .banner.info{background:#F2F4F9;color:var(--indigo-dark);border:1px solid #CBD3E8;}
+  .section{
+    background:var(--card);
+    margin:18px 16px 0;
+    border-radius:10px;
+    border:1px solid var(--sage-line);
+    padding:20px 18px;
+  }
+  .section-num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:24px;height:24px;
+    border-radius:50%;
+    background:var(--indigo);
+    color:#fff;
+    font-size:12.5px;
+    font-weight:600;
+    margin-right:8px;
+    flex-shrink:0;
+  }
+  .section-title{
+    display:flex;
+    align-items:center;
+    font-size:15.5px;
+    font-weight:600;
+    color:var(--indigo-dark);
+    margin:0 0 4px;
+  }
+  .section-sub{
+    font-size:12.5px;
+    color:var(--muted);
+    margin:0 0 16px;
+    padding-left:32px;
+  }
+  .field{margin-bottom:16px;}
+  .field:last-child{margin-bottom:0;}
+  label.q{
+    display:block;
+    font-size:14px;
+    font-weight:500;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  label.q .req{color:var(--danger);margin-left:2px;}
+  .hint{
+    font-size:12.5px;
+    color:var(--muted);
+    margin:-3px 0 8px;
+    line-height:1.4;
+  }
+  input[type=text], input[type=number], input[type=date], input[type=time], textarea, select{
+    width:100%;
+    padding:12px 12px;
+    font-size:16px;
+    font-family:inherit;
+    border:1px solid var(--sage-line);
+    border-radius:7px;
+    background:#fff;
+    color:var(--ink);
+  }
+  input:focus, textarea:focus, select:focus{
+    outline:none;
+    border-color:var(--indigo);
+    box-shadow:0 0 0 3px rgba(43,58,103,0.12);
+  }
+  textarea{resize:vertical;min-height:70px;}
+  .radio-row, .check-row{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .radio-opt, .check-opt{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 12px;
+    border:1px solid var(--sage-line);
+    border-radius:7px;
+    cursor:pointer;
+    font-size:14.5px;
+    transition:border-color 0.15s;
+  }
+  .radio-opt:has(input:checked), .check-opt:has(input:checked){
+    border-color:var(--indigo);
+    background:#F2F4F9;
+  }
+  .radio-opt input, .check-opt input{
+    width:19px;height:19px;
+    flex-shrink:0;
+    accent-color:var(--indigo);
+  }
+  .sector-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 12px;
+    border:1px solid var(--sage-line);
+    border-radius:7px;
+  }
+  .sector-row + .sector-row{margin-top:8px;}
+  .sector-row input[type=checkbox]{width:19px;height:19px;accent-color:var(--indigo);flex-shrink:0;}
+  .sector-label{flex:1;font-size:14.5px;}
+  .sector-count{
+    width:68px;
+    padding:8px 8px;
+    font-size:14px;
+    border:1px solid var(--sage-line);
+    border-radius:6px;
+    display:none;
+  }
+  .sector-row.active{border-color:var(--indigo);background:#F2F4F9;}
+  .sector-row.active .sector-count{display:block;}
+  .legend-box{
+    background:#F2F4F9;
+    border:1px solid var(--sage-line);
+    border-radius:7px;
+    padding:10px 12px;
+    font-size:12.5px;
+    color:var(--muted);
+    line-height:1.6;
+    margin-bottom:12px;
+  }
+  .legend-box b{color:var(--indigo-dark);}
+  .other-input{
+    margin-top:8px;
+    display:none;
+  }
+  .other-input.show{display:block;}
+  .conditional-block{
+    display:none;
+    margin-top:16px;
+    padding-top:16px;
+    border-top:1px dashed var(--sage-line);
+  }
+  .conditional-block.show{display:block;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .optional-tag{
+    font-size:11px;
+    color:var(--muted);
+    font-weight:400;
+    margin-left:6px;
+  }
+  .submit-bar{margin:24px 16px 0;}
+  button.submit-btn{
+    width:100%;
+    padding:16px;
+    font-size:15.5px;
+    font-weight:600;
+    color:#fff;
+    background:var(--marigold);
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  button.submit-btn:active{background:var(--marigold-dark);}
+  button.submit-btn:disabled{opacity:0.65;cursor:not-allowed;}
+  .error-msg{
+    color:var(--danger);
+    font-size:12.5px;
+    margin-top:6px;
+    display:none;
+  }
+  .error-msg.show{display:block;}
+  .field.has-error input, .field.has-error select, .field.has-error textarea{
+    border-color:var(--danger);
+  }
+  .confirm-screen{
+    display:none;
+    text-align:center;
+    padding:60px 24px;
+  }
+  .confirm-screen.show{display:block;}
+  .confirm-icon{
+    width:56px;height:56px;
+    border-radius:50%;
+    background:var(--success-bg);
+    color:var(--success);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 16px;
+    font-size:28px;
+  }
+  .confirm-screen h2{
+    font-family:'Roboto Slab',serif;
+    font-size:20px;
+    color:var(--indigo-dark);
+    margin:0 0 8px;
+  }
+  .confirm-screen p{color:var(--muted);font-size:14px;margin:0 0 20px;}
+  .view-log-btn{
+    background:none;
+    border:1px solid var(--sage-line);
+    color:var(--indigo-dark);
+    padding:10px 18px;
+    border-radius:7px;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .new-entry-btn{
+    background:none;
+    border:none;
+    color:var(--marigold-dark);
+    font-size:13.5px;
+    font-weight:600;
+    margin-top:14px;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .form-body{display:block;}
+  .form-body.hide{display:none;}
+  .footer-note{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--muted);
+    margin:24px 16px 0;
+    line-height:1.6;
+  }
+
+  /* --- Visit blocks (repeatable, fixes single-visit bug) --- */
+  .visit-block{
+    border:1px solid var(--sage-line);
+    border-radius:8px;
+    padding:14px 14px 16px;
+    margin-bottom:12px;
+    background:#FCFBF8;
+    position:relative;
+  }
+  .visit-block-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .visit-block-head span{
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--indigo-dark);
+  }
+  .visit-remove-btn{
+    background:none;
+    border:none;
+    color:var(--danger);
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    padding:4px 6px;
+  }
+  .add-visit-btn{
+    width:100%;
+    padding:12px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--indigo-dark);
+    background:#F2F4F9;
+    border:1px dashed var(--indigo);
+    border-radius:7px;
+    cursor:pointer;
+    margin-top:4px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <p class="eyebrow">Project Sashakt — Naroda Zone</p>
+    <h1>Daily Activity Log</h1>
+    <p>Fill this once, at the end of your working day.</p>
+    <p class="draft-note" id="draftNote">A draft of this entry is saved on this phone. It will clear once you submit.</p>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="banner error" id="submitError"></div>
+
+  <div class="form-body" id="formBody">
+    <div class="section">
+      <p class="section-title"><span class="section-num">1</span>Who and when</p>
+      <div class="field">
+        <label class="q">Date<span class="req">*</span></label>
+        <input type="date" id="f_date">
+        <p class="error-msg" id="err_date">Select today's date.</p>
+      </div>
+      <div class="field">
+        <label class="q">Member name<span class="req">*</span></label>
+        <select id="f_name">
+          <option value="">Select your name</option>
+          <option>TRUPTI ZALA</option>
+          <option>MIRAL RATHOD</option>
+          <option>SUNITA GORAHVA</option>
+          <option>SAKSHI SALVI</option>
+          <option>KAUSHLYA RATHOD</option>
+        </select>
+        <p class="error-msg" id="err_name">Select your name.</p>
+      </div>
+      <div class="field grid2">
+        <div>
+          <label class="q">Start time (check-in)<span class="req">*</span></label>
+          <input type="time" id="f_start">
+        </div>
+        <div>
+          <label class="q">End time (check-out)<span class="req">*</span></label>
+          <input type="time" id="f_end">
+        </div>
+        <p class="error-msg" id="err_time" style="grid-column:1/-1;">Enter both check-in and check-out times.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-title"><span class="section-num">2</span>Field visits</p>
+      <div class="field">
+        <label class="q">Did you go on a field visit today?<span class="req">*</span></label>
+        <div class="radio-row">
+          <label class="radio-opt"><input type="radio" name="fieldVisit" value="Yes">Yes</label>
+          <label class="radio-opt"><input type="radio" name="fieldVisit" value="No">No</label>
+        </div>
+        <p class="error-msg" id="err_fieldVisit">Select yes or no.</p>
+      </div>
+      <div class="conditional-block" id="fieldVisitDetails">
+        <p class="hint" style="margin-top:0;">Add one block per visit — each visit gets its own check-in and check-out time.</p>
+        <div id="visitBlocks"></div>
+        <button type="button" class="add-visit-btn" id="addVisitBtn">+ Add another visit</button>
+        <p class="error-msg" id="err_visits">Fill in location, check-in, check-out and description for every visit listed.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-title"><span class="section-num">3</span>Calls made</p>
+      <div class="field">
+        <label class="q">Calling purpose<span class="req">*</span></label>
+        <select id="f_callPurpose">
+          <option value="">Select purpose</option>
+          <option>Admission</option>
+          <option>Family profiling follow-up</option>
+          <option>Health camp reminder</option>
+          <option>Event / Mela invite</option>
+          <option>General follow-up</option>
+          <option>No calls</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" id="f_callOther" class="other-input" placeholder="Describe the purpose">
+        <p class="error-msg" id="err_callPurpose">Select a calling purpose.</p>
+      </div>
+      <div class="conditional-block" id="callDetails">
+        <div class="field">
+          <label class="q">Total calls made<span class="req">*</span></label>
+          <input type="number" min="0" inputmode="numeric" id="f_callCount" placeholder="e.g. 12">
+          <p class="error-msg" id="err_callCount">Enter number of calls made.</p>
+        </div>
+        <div class="field">
+          <label class="q">Positive responses<span class="req">*</span></label>
+          <input type="number" min="0" inputmode="numeric" id="f_callPositive" placeholder="e.g. 5">
+          <p class="error-msg" id="err_callPositive">Enter number of positive responses.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-title"><span class="section-num">4</span>Coordination activities</p>
+      <div class="field">
+        <label class="q">Which activities did you coordinate today?<span class="req">*</span></label>
+        <p class="hint">Select all that apply. If none, select "No activity today".</p>
+        <div class="check-row" id="coordCheckboxes">
+          <label class="check-opt"><input type="checkbox" value="None" class="coord-none">No activity today</label>
+          <label class="check-opt"><input type="checkbox" value="Activity Management" class="coord-item">Activity management</label>
+          <label class="check-opt"><input type="checkbox" value="Skilling Helping/Coordinating" class="coord-item">Skilling helping / coordinating</label>
+          <label class="check-opt"><input type="checkbox" value="Education Coordination &amp; Activities" class="coord-item">Education coordination and activities</label>
+          <label class="check-opt"><input type="checkbox" value="Health Care Coordination &amp; Activities" class="coord-item">Health care coordination and activities</label>
+          <label class="check-opt"><input type="checkbox" value="Other" class="coord-other-check">Other</label>
+        </div>
+        <input type="text" id="f_coordOther" class="other-input" placeholder="Describe the other activity">
+        <p class="error-msg" id="err_coord">Select at least one option.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-title"><span class="section-num">5</span>Admissions</p>
+      <div class="field">
+        <label class="q">Admission sector<span class="req">*</span></label>
+        <p class="hint">Tick every sector where you got admissions today and enter the count.</p>
+        <div class="legend-box">
+          <b>SET</b> = Skill Enhancement Training &nbsp;·&nbsp;
+          <b>BT</b> = Basic Training &nbsp;·&nbsp;
+          <b>DDEO</b> = District Development Education Officer &nbsp;·&nbsp;
+          <b>GST</b> = General Skilling Track
+        </div>
+        <div class="radio-row" id="sectorRows">
+          <div class="sector-row" data-sector="SET">
+            <input type="checkbox" class="sector-check">
+            <span class="sector-label">SET</span>
+            <input type="number" min="0" inputmode="numeric" class="sector-count" placeholder="Count">
+          </div>
+          <div class="sector-row" data-sector="BT">
+            <input type="checkbox" class="sector-check">
+            <span class="sector-label">BT</span>
+            <input type="number" min="0" inputmode="numeric" class="sector-count" placeholder="Count">
+          </div>
+          <div class="sector-row" data-sector="DDEO">
+            <input type="checkbox" class="sector-check">
+            <span class="sector-label">DDEO</span>
+            <input type="number" min="0" inputmode="numeric" class="sector-count" placeholder="Count">
+          </div>
+          <div class="sector-row" data-sector="GST">
+            <input type="checkbox" class="sector-check">
+            <span class="sector-label">GST</span>
+            <input type="number" min="0" inputmode="numeric" class="sector-count" placeholder="Count">
+          </div>
+          <div class="sector-row" data-sector="Other">
+            <input type="checkbox" class="sector-check">
+            <span class="sector-label">Other</span>
+            <input type="number" min="0" inputmode="numeric" class="sector-count" placeholder="Count">
+          </div>
+          <div class="sector-row" data-sector="No admissions">
+            <input type="checkbox" class="sector-check">
+            <span class="sector-label">No admissions today</span>
+          </div>
+        </div>
+        <p class="error-msg" id="err_sector">Select at least one sector, or "No admissions today".</p>
+      </div>
+      <div class="field">
+        <label class="q">Family profiling forms filled<span class="req">*</span></label>
+        <input type="number" min="0" inputmode="numeric" id="f_profiling" placeholder="e.g. 0">
+        <p class="error-msg" id="err_profiling">Enter a number, even if zero.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-title"><span class="section-num">6</span>Notes</p>
+      <div class="field">
+        <label class="q">Any blockers today?<span class="optional-tag">optional</span></label>
+        <p class="hint">Rain, staff shortage, low turnout — anything that slowed you down.</p>
+        <textarea id="f_blockers" placeholder="e.g. Rain since afternoon, could not reach Vatva"></textarea>
+      </div>
+      <div class="field">
+        <label class="q">Other notes<span class="optional-tag">optional</span></label>
+        <textarea id="f_otherNotes" placeholder="Anything else worth flagging"></textarea>
+      </div>
+    </div>
+
+    <div class="submit-bar">
+      <button class="submit-btn" id="submitBtn">Submit log</button>
+    </div>
+    <p class="footer-note">Your entry will be saved to the shared Google Sheet after you submit.</p>
+  </div>
+
+  <div class="confirm-screen" id="confirmScreen">
+    <div class="confirm-icon"><i>✓</i></div>
+    <h2>Log submitted</h2>
+    <p id="confirmText">Your daily activity has been saved to the shared Google Sheet.</p>
+    <button class="view-log-btn" id="viewLogBtn">Open shared team log</button>
+    <br>
+    <button class="new-entry-btn" id="newEntryBtn">Submit another entry</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  // =========================================================
+  // SASHAKT DAILY ACTIVITY LOG (NARODA) -> GOOGLE SHEETS CONNECTION
+  // =========================================================
+  // 1) Deploy the matching Code.gs (in this same folder) as a Web App
+  //    from inside the Naroda Daily Log sheet
+  //    (Execute as: Me · Who has access: Anyone with the link).
+  // 2) Paste that /exec URL below, replacing the PASTE_YOUR_... placeholder.
+  var GOOGLE_SHEETS_WEB_APP_URL = 'PASTE_YOUR_NARODA_WEB_APP_EXEC_URL_HERE';
+  // Native Google Sheet URL so "Open shared team log" works — already
+  // pointed at the Naroda Daily Log sheet you shared.
+  var GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1X9HIIWBnKCqsoEc4Ulfqr5SYLvv_4wAFDD8l9ARV0dE/edit';
+
+  var DRAFT_KEY = 'naroda-daily-log-draft-v1';
+
+  var fieldVisitRadios = document.getElementsByName('fieldVisit');
+  var fieldVisitDetails = document.getElementById('fieldVisitDetails');
+  var visitBlocks = document.getElementById('visitBlocks');
+  var addVisitBtn = document.getElementById('addVisitBtn');
+  var callPurpose = document.getElementById('f_callPurpose');
+  var callDetails = document.getElementById('callDetails');
+  var callOther = document.getElementById('f_callOther');
+  var coordNone = document.querySelector('.coord-none');
+  var coordItems = document.querySelectorAll('.coord-item');
+  var coordOtherCheck = document.querySelector('.coord-other-check');
+  var coordOtherInput = document.getElementById('f_coordOther');
+  var sectorRows = document.querySelectorAll('.sector-row');
+  var submitErrorBanner = document.getElementById('submitError');
+
+  var visitCounter = 0;
+
+  // ---------- Repeatable field-visit blocks ----------
+  // This is the fix for "only one check-in/check-out even with
+  // multiple visits selected": every visit now gets its own block
+  // with its own location, check-in, check-out and description.
+  function addVisitBlock(prefill){
+    visitCounter++;
+    var id = visitCounter;
+    var block = document.createElement('div');
+    block.className = 'visit-block';
+    block.dataset.visitId = id;
+    block.innerHTML =
+      '<div class="visit-block-head">' +
+        '<span>Visit ' + id + '</span>' +
+        '<button type="button" class="visit-remove-btn" data-remove="' + id + '">Remove</button>' +
+      '</div>' +
+      '<div class="field">' +
+        '<label class="q">Location<span class="req">*</span></label>' +
+        '<input type="text" class="v-location" placeholder="e.g. Rangolinagar, Vatva">' +
+      '</div>' +
+      '<div class="field grid2">' +
+        '<div>' +
+          '<label class="q">Check-in<span class="req">*</span></label>' +
+          '<input type="time" class="v-start">' +
+        '</div>' +
+        '<div>' +
+          '<label class="q">Check-out<span class="req">*</span></label>' +
+          '<input type="time" class="v-end">' +
+        '</div>' +
+      '</div>' +
+      '<div class="field">' +
+        '<label class="q">What did this visit cover?<span class="req">*</span></label>' +
+        '<textarea class="v-desc" placeholder="What did you do on this visit?"></textarea>' +
+      '</div>';
+    visitBlocks.appendChild(block);
+    if(prefill){
+      block.querySelector('.v-location').value = prefill.location || '';
+      block.querySelector('.v-start').value = prefill.start || '';
+      block.querySelector('.v-end').value = prefill.end || '';
+      block.querySelector('.v-desc').value = prefill.desc || '';
+    }
+    refreshVisitBlockUI();
+    saveDraftSoon();
+  }
+
+  function refreshVisitBlockUI(){
+    var blocks = visitBlocks.querySelectorAll('.visit-block');
+    blocks.forEach(function(b, i){
+      b.querySelector('.visit-block-head span').textContent = 'Visit ' + (i + 1);
+      var removeBtn = b.querySelector('.visit-remove-btn');
+      removeBtn.style.display = blocks.length > 1 ? 'inline-block' : 'none';
+    });
+  }
+
+  visitBlocks.addEventListener('click', function(e){
+    var btn = e.target.closest('.visit-remove-btn');
+    if(!btn) return;
+    var block = btn.closest('.visit-block');
+    if(visitBlocks.querySelectorAll('.visit-block').length <= 1) return;
+    block.remove();
+    refreshVisitBlockUI();
+    updateProgress();
+    saveDraftSoon();
+  });
+
+  addVisitBtn.addEventListener('click', function(){ addVisitBlock(); });
+
+  fieldVisitDetails.classList.remove('show');
+  fieldVisitRadios.forEach(function(r){
+    r.addEventListener('change', function(){
+      var selected = Array.from(fieldVisitRadios).find(function(x){ return x.checked; });
+      var isYes = selected && selected.value === 'Yes';
+      fieldVisitDetails.classList.toggle('show', isYes);
+      if(isYes && visitBlocks.children.length === 0){
+        addVisitBlock();
+      }
+      updateProgress();
+      saveDraftSoon();
+    });
+  });
+
+  callPurpose.addEventListener('change', function(){
+    var v = callPurpose.value;
+    callDetails.classList.toggle('show', v !== '' && v !== 'No calls');
+    callOther.classList.toggle('show', v === 'Other');
+    updateProgress();
+  });
+
+  coordNone.addEventListener('change', function(){
+    if(coordNone.checked){
+      coordItems.forEach(function(c){ c.checked = false; });
+      coordOtherCheck.checked = false;
+      coordOtherInput.classList.remove('show');
+    }
+  });
+  function uncheckNoneIfOthersActive(){
+    var anyOther =
+      Array.from(coordItems).some(function(c){ return c.checked; }) ||
+      coordOtherCheck.checked;
+    if(anyOther) coordNone.checked = false;
+  }
+  coordItems.forEach(function(c){
+    c.addEventListener('change', uncheckNoneIfOthersActive);
+  });
+  coordOtherCheck.addEventListener('change', function(){
+    uncheckNoneIfOthersActive();
+    coordOtherInput.classList.toggle('show', coordOtherCheck.checked);
+  });
+
+  sectorRows.forEach(function(row){
+    var check = row.querySelector('.sector-check');
+    check.addEventListener('change', function(){
+      row.classList.toggle('active', check.checked);
+      if(check.checked && row.dataset.sector !== 'No admissions'){
+        var noAdm = document.querySelector('.sector-row[data-sector="No admissions"] .sector-check');
+        noAdm.checked = false;
+        noAdm.closest('.sector-row').classList.remove('active');
+      }
+      if(check.checked && row.dataset.sector === 'No admissions'){
+        sectorRows.forEach(function(r){
+          if(r.dataset.sector !== 'No admissions'){
+            r.querySelector('.sector-check').checked = false;
+            r.classList.remove('active');
+            var countInput = r.querySelector('.sector-count');
+            if(countInput) countInput.value = '';
+          }
+        });
+      }
+    });
+  });
+
+  function clearError(id){
+    var el = document.getElementById(id);
+    if(el) el.classList.remove('show');
+  }
+  function setError(id){
+    var el = document.getElementById(id);
+    if(el) el.classList.add('show');
+  }
+
+  function updateProgress(){
+    var total = 6;
+    var filled = 0;
+    if(document.getElementById('f_date').value) filled++;
+    if(document.getElementById('f_name').value) filled++;
+    if(document.getElementById('f_start').value && document.getElementById('f_end').value) filled++;
+    var fv = Array.from(fieldVisitRadios).find(function(r){ return r.checked; });
+    if(fv) filled++;
+    if(callPurpose.value) filled++;
+    var anyCoord =
+      coordNone.checked ||
+      Array.from(coordItems).some(function(c){ return c.checked; }) ||
+      coordOtherCheck.checked;
+    if(anyCoord) filled++;
+    document.getElementById('progressFill').style.width = Math.max(8, (filled / total) * 100) + '%';
+  }
+
+  document.querySelectorAll('input,select,textarea').forEach(function(el){
+    el.addEventListener('input', function(){ updateProgress(); saveDraftSoon(); });
+    el.addEventListener('change', function(){ updateProgress(); saveDraftSoon(); });
+  });
+
+  // ---------- Draft autosave (so a dropped connection or a closed
+  // tab never loses a half-filled entry) ----------
+  var saveDraftTimer = null;
+  function saveDraftSoon(){
+    clearTimeout(saveDraftTimer);
+    saveDraftTimer = setTimeout(saveDraftNow, 400);
+  }
+  function collectVisitBlocks(){
+    return Array.from(visitBlocks.querySelectorAll('.visit-block')).map(function(b){
+      return {
+        location: b.querySelector('.v-location').value,
+        start: b.querySelector('.v-start').value,
+        end: b.querySelector('.v-end').value,
+        desc: b.querySelector('.v-desc').value
+      };
+    });
+  }
+  function saveDraftNow(){
+    try{
+      var fv = Array.from(fieldVisitRadios).find(function(r){ return r.checked; });
+      var draft = {
+        date: document.getElementById('f_date').value,
+        name: document.getElementById('f_name').value,
+        start: document.getElementById('f_start').value,
+        end: document.getElementById('f_end').value,
+        fieldVisit: fv ? fv.value : '',
+        visits: collectVisitBlocks(),
+        callPurpose: callPurpose.value,
+        callOther: callOther.value,
+        callCount: document.getElementById('f_callCount').value,
+        callPositive: document.getElementById('f_callPositive').value,
+        coordNone: coordNone.checked,
+        coordItems: Array.from(coordItems).map(function(c){ return c.checked; }),
+        coordOtherCheck: coordOtherCheck.checked,
+        coordOther: coordOtherInput.value,
+        sectors: Array.from(sectorRows).map(function(r){
+          var c = r.querySelector('.sector-check');
+          var cnt = r.querySelector('.sector-count');
+          return { checked: c.checked, count: cnt ? cnt.value : '' };
+        }),
+        profiling: document.getElementById('f_profiling').value,
+        blockers: document.getElementById('f_blockers').value,
+        otherNotes: document.getElementById('f_otherNotes').value
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      document.getElementById('draftNote').classList.add('show');
+    }catch(e){ /* storage unavailable — form still works, just no autosave */ }
+  }
+  function restoreDraft(){
+    var raw;
+    try{ raw = localStorage.getItem(DRAFT_KEY); }catch(e){ return; }
+    if(!raw) return;
+    var d;
+    try{ d = JSON.parse(raw); }catch(e){ return; }
+    if(!d) return;
+    if(d.name) document.getElementById('f_name').value = d.name;
+    if(d.start) document.getElementById('f_start').value = d.start;
+    if(d.end) document.getElementById('f_end').value = d.end;
+    if(d.fieldVisit){
+      var radio = Array.from(fieldVisitRadios).find(function(r){ return r.value === d.fieldVisit; });
+      if(radio){
+        radio.checked = true;
+        fieldVisitDetails.classList.toggle('show', d.fieldVisit === 'Yes');
+      }
+    }
+    if(d.fieldVisit === 'Yes' && d.visits && d.visits.length){
+      d.visits.forEach(function(v){ addVisitBlock(v); });
+    }
+    if(d.callPurpose){
+      callPurpose.value = d.callPurpose;
+      callDetails.classList.toggle('show', d.callPurpose !== '' && d.callPurpose !== 'No calls');
+      callOther.classList.toggle('show', d.callPurpose === 'Other');
+    }
+    if(d.callOther) callOther.value = d.callOther;
+    if(d.callCount) document.getElementById('f_callCount').value = d.callCount;
+    if(d.callPositive) document.getElementById('f_callPositive').value = d.callPositive;
+    coordNone.checked = !!d.coordNone;
+    if(d.coordItems){
+      coordItems.forEach(function(c, i){ c.checked = !!d.coordItems[i]; });
+    }
+    coordOtherCheck.checked = !!d.coordOtherCheck;
+    coordOtherInput.classList.toggle('show', !!d.coordOtherCheck);
+    if(d.coordOther) coordOtherInput.value = d.coordOther;
+    if(d.sectors){
+      sectorRows.forEach(function(r, i){
+        var s = d.sectors[i];
+        if(!s) return;
+        var c = r.querySelector('.sector-check');
+        var cnt = r.querySelector('.sector-count');
+        c.checked = !!s.checked;
+        r.classList.toggle('active', !!s.checked);
+        if(cnt && s.count) cnt.value = s.count;
+      });
+    }
+    if(d.profiling) document.getElementById('f_profiling').value = d.profiling;
+    if(d.blockers) document.getElementById('f_blockers').value = d.blockers;
+    if(d.otherNotes) document.getElementById('f_otherNotes').value = d.otherNotes;
+    document.getElementById('draftNote').classList.add('show');
+  }
+  function clearDraft(){
+    try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+    document.getElementById('draftNote').classList.remove('show');
+  }
+
+  // Use the user's local date instead of UTC to avoid date shifts.
+  var now = new Date();
+  var localToday =
+    now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0');
+  document.getElementById('f_date').value = localToday;
+
+  restoreDraft();
+  updateProgress();
+
+  function sectorCount(sectorName){
+    var row = document.querySelector('.sector-row[data-sector="' + sectorName + '"]');
+    if(!row) return '0';
+    var check = row.querySelector('.sector-check');
+    if(!check || !check.checked) return '0';
+    var countEl = row.querySelector('.sector-count');
+    return countEl && countEl.value !== '' ? countEl.value : '0';
+  }
+
+  function makeSubmissionToken(){
+    return 'SASH-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  }
+
+  function showSubmitError(message){
+    submitErrorBanner.textContent = message;
+    submitErrorBanner.classList.add('show');
+    submitErrorBanner.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+  function hideSubmitError(){
+    submitErrorBanner.classList.remove('show');
+  }
+
+  document.getElementById('submitBtn').addEventListener('click', function(){
+    hideSubmitError();
+    var valid = true;
+    [
+      'err_date','err_name','err_time','err_fieldVisit','err_visits',
+      'err_callPurpose','err_callCount','err_callPositive','err_coord',
+      'err_sector','err_profiling'
+    ].forEach(clearError);
+
+    if(!document.getElementById('f_date').value){ setError('err_date'); valid = false; }
+    if(!document.getElementById('f_name').value){ setError('err_name'); valid = false; }
+    if(!document.getElementById('f_start').value || !document.getElementById('f_end').value){
+      setError('err_time'); valid = false;
+    }
+
+    var fv = Array.from(fieldVisitRadios).find(function(r){ return r.checked; });
+    var visitRows = [];
+    if(!fv){
+      setError('err_fieldVisit');
+      valid = false;
+    } else if(fv.value === 'Yes'){
+      var blocks = visitBlocks.querySelectorAll('.visit-block');
+      if(blocks.length === 0){
+        setError('err_visits'); valid = false;
+      } else {
+        blocks.forEach(function(b){
+          var loc = b.querySelector('.v-location').value.trim();
+          var st = b.querySelector('.v-start').value;
+          var en = b.querySelector('.v-end').value;
+          var ds = b.querySelector('.v-desc').value.trim();
+          if(!loc || !st || !en || !ds){ valid = false; }
+          visitRows.push({ location: loc, start: st, end: en, desc: ds });
+        });
+        if(!valid && document.getElementById('err_visits')) setError('err_visits');
+      }
+    }
+
+    if(!callPurpose.value){
+      setError('err_callPurpose');
+      valid = false;
+    } else if(callPurpose.value !== 'No calls'){
+      if(document.getElementById('f_callCount').value === ''){ setError('err_callCount'); valid = false; }
+      if(document.getElementById('f_callPositive').value === ''){ setError('err_callPositive'); valid = false; }
+    }
+
+    var anyCoord =
+      coordNone.checked ||
+      Array.from(coordItems).some(function(c){ return c.checked; }) ||
+      coordOtherCheck.checked;
+    if(!anyCoord){ setError('err_coord'); valid = false; }
+
+    var anySector = Array.from(document.querySelectorAll('.sector-check')).some(function(c){ return c.checked; });
+    if(!anySector){ setError('err_sector'); valid = false; }
+
+    if(document.getElementById('f_profiling').value === ''){ setError('err_profiling'); valid = false; }
+
+    if(!valid){
+      var firstError = document.querySelector('.error-msg.show');
+      if(firstError) firstError.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+
+    if(GOOGLE_SHEETS_WEB_APP_URL.indexOf('PASTE_YOUR_') === 0 || GOOGLE_SHEETS_WEB_APP_URL.indexOf('/exec') === -1){
+      showSubmitError('The Google Sheets connection is not set up yet (Apps Script Web App URL is missing).');
+      return;
+    }
+
+    var noAdmissionsRow = document.querySelector('.sector-row[data-sector="No admissions"]');
+    var noAdmissionsChecked = noAdmissionsRow && noAdmissionsRow.querySelector('.sector-check').checked;
+
+    var standardCoord = [];
+    if(coordNone.checked) standardCoord.push('No activity today');
+    coordItems.forEach(function(c){ if(c.checked) standardCoord.push(c.value); });
+    if(coordOtherCheck.checked) standardCoord.push('Other');
+
+    var submissionToken = makeSubmissionToken();
+    var entry = {
+      submissionToken: submissionToken,
+      date: document.getElementById('f_date').value,
+      memberName: document.getElementById('f_name').value,
+      startTime: document.getElementById('f_start').value,
+      endTime: document.getElementById('f_end').value,
+      fieldVisit: fv.value,
+      // Sent as a real array — the backend writes one row per visit to
+      // a separate "Field Visits" sheet, so any number of visits works.
+      visits: fv.value === 'Yes' ? visitRows : [],
+      callingPurpose: callPurpose.value,
+      otherCallingPurpose: callPurpose.value === 'Other' ? callOther.value.trim() : '',
+      totalCalls: callPurpose.value === 'No calls' ? '0' : document.getElementById('f_callCount').value,
+      positiveResponses: callPurpose.value === 'No calls' ? '0' : document.getElementById('f_callPositive').value,
+      coordinationActivities: standardCoord.join(', '),
+      otherCoordinationActivity: coordOtherCheck.checked ? coordOtherInput.value.trim() : '',
+      setAdmissions: sectorCount('SET'),
+      btAdmissions: sectorCount('BT'),
+      ddeoAdmissions: sectorCount('DDEO'),
+      gstAdmissions: sectorCount('GST'),
+      otherAdmissions: sectorCount('Other'),
+      noAdmissionsToday: noAdmissionsChecked ? 'Yes' : 'No',
+      familyProfilingForms: document.getElementById('f_profiling').value,
+      blockers: document.getElementById('f_blockers').value.trim(),
+      otherNotes: document.getElementById('f_otherNotes').value.trim()
+    };
+
+    var submitBtn = document.getElementById('submitBtn');
+    var originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    // A plain fetch POST with a string body (so the browser sends it as
+    // a "simple request", no CORS preflight) — Apps Script's redirect
+    // target adds Access-Control-Allow-Origin, so the JSON reply below
+    // can be read directly. No separate polling round-trip needed.
+    fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+      method: 'POST',
+      body: JSON.stringify(entry)
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(result){
+      if(!result || result.ok !== true){
+        throw new Error((result && result.error) || 'The sheet did not confirm the entry was saved.');
+      }
+      clearDraft();
+      document.getElementById('formBody').classList.add('hide');
+      document.getElementById('confirmScreen').classList.add('show');
+      document.getElementById('confirmText').textContent = 'Your daily activity has been saved to the shared Google Sheet.';
+    })
+    .catch(function(err){
+      console.error('Submission error:', err);
+      showSubmitError(
+        'Could not confirm the entry was saved. ' +
+        (err && err.message ? err.message : 'Unknown connection error') + ' ' +
+        'Your answers are still on this page and saved as a draft on this phone — check your internet connection and press Submit log again.'
+      );
+    })
+    .finally(function(){
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    });
+  });
+
+  document.getElementById('newEntryBtn').addEventListener('click', function(){
+    location.reload();
+  });
+
+  document.getElementById('viewLogBtn').addEventListener('click', function(){
+    if(GOOGLE_SHEET_URL.indexOf('PASTE_YOUR_') === 0 || GOOGLE_SHEET_URL.indexOf('docs.google.com/spreadsheets') === -1){
+      showSubmitError('The Google Sheet link is not set up yet.');
+      return;
+    }
+    window.open(GOOGLE_SHEET_URL, '_blank', 'noopener,noreferrer');
+  });
+})();
+</script>
+</body>
+</html>
